@@ -52,7 +52,7 @@ public class LeakController {
         Double averageTimeValue = averageTime.length() > 0 ? Double.valueOf(averageTime) : null;
         service = new LeakService(threadCount);
         for (int i = 0; i < threadCount; i++) {
-            service.start(i, url, averageCount, inequalityWeight, delay, keepAliveCount);
+            service.start(i, url, averageCount, inequalityWeight, delay, keepAliveCount, averageTimeValue);
         }
 
     }

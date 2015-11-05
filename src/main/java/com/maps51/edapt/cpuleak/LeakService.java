@@ -18,8 +18,10 @@ public class LeakService {
         schExService.shutdown();
     }
 
-    public void start(int threadNumber, String url, int averageCount, double inequalityWeight, long delay, int keepAliveCount) {
-        final Runnable obj = new LeakMonitor(url, threadNumber, averageCount, inequalityWeight, keepAliveCount);
+    public void start(int threadNumber, String url, int averageCount, double inequalityWeight, long delay, int keepAliveCount, Double expectAverageTime) {
+        final Runnable obj = expectAverageTime == null ?
+                new AdaptiveLeakMonitor(url, threadNumber, inequalityWeight, keepAliveCount, averageCount) :
+                new AveragedLeakMonitor(url, threadNumber, inequalityWeight, keepAliveCount, expectAverageTime);
         schExService.scheduleWithFixedDelay(obj, delay * threadNumber, delay, TimeUnit.MILLISECONDS);
     }
 }

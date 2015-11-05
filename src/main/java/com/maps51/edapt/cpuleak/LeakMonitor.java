@@ -9,62 +9,33 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-public class LeakMonitor implements Runnable {
-    private static final Logger LOG = LoggerFactory.getLogger(LeakMonitor.class);
+public abstract class LeakMonitor implements Runnable {
+    protected static final Logger LOG = LoggerFactory.getLogger(LeakMonitor.class);
 
-    private int number;
-    private RestTemplate restTemplate;
-    private ResponseEntity<String> responseEntity;
-    private final String url;
-    private final HttpEntity<String> entity;
+    protected final int number;
+    protected final String url;
+    protected final HttpEntity<String> entity;
+    protected RestTemplate restTemplate;
+    protected ResponseEntity<String> responseEntity;
 
-    private int iterationCount;
-    private double averageTime;
-    private long completedQueries = 1;
-    private final double inequalityWeight;
-    private double bound;
-    private boolean showEveryResult = Boolean.TRUE;
-    private int keepAliveAverageCount;
+    protected final double inequalityWeight;
+    protected final int keepAliveCount;
+    protected double bound;
+    protected long completedQueries = 0;
 
-    public LeakMonitor(String url, int number, int numberForAverage, double inequalityWeight, int keepAliveAverageCount) {
+    public LeakMonitor(String url, int number, double inequalityWeight, int keepAliveCount) {
         this.number = number;
         this.url = url;
-        this.iterationCount = numberForAverage;
         this.inequalityWeight = inequalityWeight;
-        this.keepAliveAverageCount = keepAliveAverageCount;
+        this.keepAliveCount = keepAliveCount;
         restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         entity = new HttpEntity<>("{\"sessionLogId\":3800}", headers);
     }
 
-    public void monitor() {
-        long time = System.currentTimeMillis();
-        responseEntity = restTemplate.postForEntity(url, entity, String.class);
-        time = System.currentTimeMillis() - time;
-        ++completedQueries;
-        if(showEveryResult && completedQueries < iterationCount) {
-            LOG.info("Thread #" + number + " get response: " + responseEntity.getStatusCode() + " in " + time  + " milliseconds.");
-            averageTime += time;
-        } else if (completedQueries == iterationCount) {
-            LOG.info("Thread #" + number + " get response: " + responseEntity.getStatusCode() + " in " + time + " milliseconds.");
-            if (showEveryResult) {
-                showEveryResult = Boolean.FALSE;
-                averageTime += time;
-                averageTime = averageTime / iterationCount;
-                this.bound = inequalityWeight * averageTime;
-                LOG.info("Thread #" + number + " average response time from " + iterationCount + " requests is " + averageTime + "ms. Now messages will appear if response time is greater more then in " +  inequalityWeight + " times or if error response status code appear or once in " + keepAliveAverageCount + " requests in order to see that application is still alive.");
-                iterationCount = keepAliveAverageCount;
-            }
-
-            completedQueries = 1;
-        } else if(responseEntity.getStatusCode().value() != 200 || time >= bound) {
-            LOG.error("!!!ATTENTION!!! Thread #" + number + " get response: " + responseEntity.getStatusCode() + " in " + time + " milliseconds.");
-        }
-    }
+    public abstract void monitor();
 
     @Override
-    public void run() {
-        monitor();
-    }
+    public abstract void run();
 }
