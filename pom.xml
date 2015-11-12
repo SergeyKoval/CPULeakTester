@@ -9,7 +9,7 @@
     <name>CPULeakTester</name>
 
     <properties>
-        <spring.version>3.2.14.RELEASE</spring.version>
+        <spring.version>4.2.0.RELEASE</spring.version>
     </properties>
 
     <dependencies>
@@ -65,6 +65,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3</version>
         </dependency>
     </dependencies>
 

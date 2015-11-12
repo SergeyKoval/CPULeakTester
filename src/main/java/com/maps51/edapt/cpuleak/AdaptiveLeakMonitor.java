@@ -1,5 +1,7 @@
 package com.maps51.edapt.cpuleak;
 
+import org.springframework.web.client.RestClientException;
+
 public class AdaptiveLeakMonitor extends LeakMonitor {
 
     private int iterationCount;
@@ -12,7 +14,7 @@ public class AdaptiveLeakMonitor extends LeakMonitor {
     }
 
     @Override
-    public void monitor() {
+    public void monitor() throws RestClientException {
         long time = System.currentTimeMillis();
         responseEntity = restTemplate.postForEntity(url, entity, String.class);
         time = System.currentTimeMillis() - time;
@@ -39,10 +41,5 @@ public class AdaptiveLeakMonitor extends LeakMonitor {
         this.bound = inequalityWeight * averageTime;
         LOG.info("Thread #" + number + " average response time from " + iterationCount + " requests is " + averageTime + "ms. Now messages will appear if response time is greater more then in " + inequalityWeight + " times or if error response status code appear or once in " + keepAliveCount + " requests in order to see that application is still alive.");
         iterationCount = keepAliveCount;
-    }
-
-    @Override
-    public void run() {
-        monitor();
     }
 }

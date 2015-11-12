@@ -1,7 +1,5 @@
 package com.maps51.edapt.cpuleak;
 
-import org.quartz.SchedulerException;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +12,7 @@ public class LeakService {
         schExService = Executors.newScheduledThreadPool(threadCount);
     }
 
-    public void destroy() throws SchedulerException {
+    public void destroy() {
         schExService.shutdown();
     }
 

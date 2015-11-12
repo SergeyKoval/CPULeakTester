@@ -1,6 +1,5 @@
 package com.maps51.edapt.cpuleak;
 
-import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,12 +58,6 @@ public class LeakController {
 
     @PreDestroy
     public void destroyService() {
-        try {
-            service.destroy();
-        } catch (SchedulerException e) {
-            LOG.error("Error in scheduler work", e);
-            throw new IllegalStateException("Error in scheduler work");
-        }
-
+        service.destroy();
     }
 }
